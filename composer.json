@@ -1,5 +1,5 @@
 {
-    "name": "directorytree/activeredis",
+    "name": "raphaelcangucu/activeredis",
     "description": "An ActiveRecord implementation for Redis.",
     "type": "library",
     "license": "MIT",
