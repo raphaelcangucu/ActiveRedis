@@ -21,6 +21,7 @@ ActiveRedis provides you simple and efficient way to interact with Redis hashes 
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Redis Cluster Support](#redis-cluster-support)
 - [Usage](#usage)
   - [Creating Models](#creating-models)
     - [Model Identifiers](#model-identifiers)
@@ -48,8 +49,79 @@ ActiveRedis provides you simple and efficient way to interact with Redis hashes 
 You can install the package via composer:
 
 ```bash
-composer require directorytree/activeredis
+composer require raphaelcangucu/activeredis
 ```
+
+## Redis Cluster Support
+
+ActiveRedis now supports **Redis Cluster mode** for horizontal scaling and high availability! 🚀
+
+### Quick Start with Cluster
+
+```php
+use DirectoryTree\ActiveRedis\Model;
+
+// Enable cluster support globally
+Model::setRepository('indexed'); // Recommended for best performance
+// Or
+Model::setRepository('cluster');  // Basic cluster support
+
+// Configure per model
+class Visit extends Model 
+{
+    protected static string $repository = 'indexed';
+    protected ?string $connection = 'redis_cluster';
+}
+```
+
+### Cluster Configuration
+
+Add to your `config/database.php`:
+
+```php
+'redis' => [
+    'redis_cluster' => [
+        'client' => 'predis',
+        'cluster' => 'redis',
+        'clusters' => [
+            ['host' => '127.0.0.1', 'port' => 7001],
+            ['host' => '127.0.0.1', 'port' => 7002],
+            ['host' => '127.0.0.1', 'port' => 7003],
+        ],
+        'options' => [
+            'cluster' => 'redis',
+        ],
+    ],
+],
+```
+
+### Key Features
+
+- ✅ **Horizontal Scaling** - Distribute data across multiple Redis nodes
+- ✅ **High Availability** - Automatic failover with replica nodes  
+- ✅ **AWS ElastiCache Compatible** - Production-ready for AWS environments
+- ✅ **Secondary Index System** - Efficient queries without SCAN operations
+- ✅ **Hash Tag Support** - Co-locate related keys for transactions
+- ✅ **Transparent Operation** - Existing code works with minimal changes
+
+### Usage
+
+```php
+// Works exactly like single Redis
+$visit = Visit::create([
+    'ip' => '192.168.1.100',
+    'user_agent' => 'Mozilla/5.0',
+]);
+
+// Queries work across all cluster nodes
+$visits = Visit::where('ip', '192.168.1.*')->get();
+
+// All operations are cluster-aware
+$visit->update(['path' => '/updated']);
+$visit->delete();
+```
+
+For comprehensive cluster documentation, see [CLUSTER.md](CLUSTER.md).
 
 ## Usage
 
